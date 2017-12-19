@@ -1,0 +1,17 @@
+<?php
+
+return array(
+    'Version' => '2.1.37.22',
+    'Names' => array(
+        'AC' => 'Isla Ascensión',
+        'BA' => 'Bosnia-Herzegovina',
+        'CI' => 'Costa de Marfil',
+        'EZ' => 'Eurozona',
+        'GG' => 'Guernesey',
+        'IC' => 'Islas Canarias',
+        'TA' => 'Tristán da Cunha',
+        'TL' => 'Timor Oriental',
+        'UM' => 'Islas Ultramarinas de EE.UU.',
+        'VI' => 'Islas Vírgenes de los Estados Unidos',
+    ),
+);
