@@ -152,7 +152,11 @@ class CurrencyDataGenerator extends AbstractDataGenerator
      */
     private function generateSymbolNamePairs(ArrayAccessibleResourceBundle $rootBundle)
     {
-        $symbolNamePairs = iterator_to_array($rootBundle['Currencies']);
+        $symbolNamePairs = array_map(function (\ResourceBundle $bundle) {
+            // Ignore the third field which is currently not being used: ESP{"₧", "pesseta espanyola", {"¤ #,##0.00", ",", ".",}}
+            // It causes problems while reading data in the PHP format as objects are exported with a \ResourceBundle::__set_state() call.
+            return array($bundle[0], $bundle[1]);
+        }, iterator_to_array($rootBundle['Currencies']));
 
         // Remove unwanted currencies
         $symbolNamePairs = array_diff_key($symbolNamePairs, self::$blacklist);

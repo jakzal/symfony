@@ -1,0 +1,14 @@
+<?php
+
+return array(
+    'Version' => '2.1.37.22',
+    'Names' => array(
+        'AC' => 'Isla de la Ascensión',
+        'CI' => 'Côte d’Ivoire',
+        'EZ' => 'zona euro',
+        'GG' => 'Guernsey',
+        'TL' => 'Timor-Leste',
+        'UM' => 'Islas menores alejadas de EE. UU.',
+        'VI' => 'Islas Vírgenes de EE. UU.',
+    ),
+);

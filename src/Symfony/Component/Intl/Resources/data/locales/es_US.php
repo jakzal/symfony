@@ -1,0 +1,12 @@
+<?php
+
+return array(
+    'Names' => array(
+        'gu' => 'gurayatí',
+        'gu_IN' => 'gurayatí (India)',
+        'rn' => 'kiroundi',
+        'rn_BI' => 'kiroundi (Burundi)',
+        'wo' => 'wolof',
+        'wo_SN' => 'wolof (Senegal)',
+    ),
+);

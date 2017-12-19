@@ -1,0 +1,13 @@
+<?php
+
+return array(
+    'Names' => array(
+        'gu' => 'gujarati',
+        'gu_IN' => 'gujarati (Inde)',
+        'ms_BN' => 'malais (Brunei)',
+        'se' => 'same du Nord',
+        'se_FI' => 'same du Nord (Finlande)',
+        'se_NO' => 'same du Nord (Norvège)',
+        'se_SE' => 'same du Nord (Suède)',
+    ),
+);

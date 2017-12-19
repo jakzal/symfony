@@ -9,8 +9,11 @@
  * file that was distributed with this source code.
  */
 
-use Symfony\Component\Intl\Data\Bundle\Reader\JsonBundleReader;
-use Symfony\Component\Intl\Data\Bundle\Writer\JsonBundleWriter;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Intl\Data\Bundle\Compiler\GenrbCompiler;
+use Symfony\Component\Intl\Data\Bundle\Reader\BundleEntryReader;
+use Symfony\Component\Intl\Data\Bundle\Reader\PhpBundleReader;
+use Symfony\Component\Intl\Data\Bundle\Writer\PhpBundleWriter;
 use Symfony\Component\Intl\Data\Generator\CurrencyDataGenerator;
 use Symfony\Component\Intl\Data\Generator\GeneratorConfig;
 use Symfony\Component\Intl\Data\Generator\LanguageDataGenerator;
@@ -21,12 +24,9 @@ use Symfony\Component\Intl\Data\Provider\LanguageDataProvider;
 use Symfony\Component\Intl\Data\Provider\RegionDataProvider;
 use Symfony\Component\Intl\Data\Provider\ScriptDataProvider;
 use Symfony\Component\Intl\Intl;
-use Symfony\Component\Intl\Data\Bundle\Compiler\GenrbCompiler;
-use Symfony\Component\Intl\Data\Bundle\Reader\BundleEntryReader;
 use Symfony\Component\Intl\Locale;
 use Symfony\Component\Intl\Util\IcuVersion;
 use Symfony\Component\Intl\Util\SvnRepository;
-use Symfony\Component\Filesystem\Filesystem;
 
 require_once __DIR__.'/common.php';
 require_once __DIR__.'/autoload.php';
@@ -180,16 +180,11 @@ $config = new GeneratorConfig($sourceDir.'/data', $icuVersionInDownload);
 
 $baseDir = dirname(__DIR__).'/data';
 
-//$txtDir = $baseDir.'/txt';
-$jsonDir = $baseDir;
-//$phpDir = $baseDir.'/'.Intl::PHP;
-//$resDir = $baseDir.'/'.Intl::RB_V2;
-
-$targetDirs = array($jsonDir/*, $resDir*/);
-$workingDirs = array($jsonDir/*, $txtDir, $resDir*/);
+$targetDirs = array($baseDir/*, $resDir*/);
+$workingDirs = array($baseDir/*, $txtDir, $resDir*/);
 
 //$config->addBundleWriter($txtDir, new TextBundleWriter());
-$config->addBundleWriter($jsonDir, new JsonBundleWriter());
+$config->addBundleWriter($baseDir, new PhpBundleWriter());
 
 echo "Starting resource bundle compilation. This may take a while...\n";
 
@@ -246,13 +241,13 @@ $generator->generateData($config);
 
 echo "Generating locale data...\n";
 
-$reader = new BundleEntryReader(new JsonBundleReader());
+$reader = new BundleEntryReader(new PhpBundleReader());
 
 $generator = new LocaleDataGenerator(
     Intl::LOCALE_DIR,
-    new LanguageDataProvider($jsonDir.'/'.Intl::LANGUAGE_DIR, $reader),
-    new ScriptDataProvider($jsonDir.'/'.Intl::SCRIPT_DIR, $reader),
-    new RegionDataProvider($jsonDir.'/'.Intl::REGION_DIR, $reader)
+    new LanguageDataProvider($baseDir.'/'.Intl::LANGUAGE_DIR, $reader),
+    new ScriptDataProvider($baseDir.'/'.Intl::SCRIPT_DIR, $reader),
+    new RegionDataProvider($baseDir.'/'.Intl::REGION_DIR, $reader)
 );
 
 $generator->generateData($config);
