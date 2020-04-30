@@ -1,0 +1,52 @@
+name: Tests
+
+on:
+    push:
+    pull_request:
+
+jobs:
+
+    redis-tests:
+        name: Redis tests
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                php: [7.2, 7.3, 7.4]
+        services:
+            redis:
+                image: redis
+                ports:
+                    - 6379:6379
+            redis-cluster:
+                image: grokzen/redis-cluster:4.0.8
+                ports:
+                    - 7000:7000
+                    - 7001:7001
+                    - 7002:7002
+                    - 7003:7003
+                    - 7004:7004
+                    - 7005:7005
+        container:
+            image: jakzal/phpqa:php${{ matrix.php }}
+        steps:
+            - uses: actions/checkout@v2
+            # Install system dependencies
+            - run: 'apt-get update && apt-get install -y autoconf file g++ gcc libc-dev pkg-config re2c'
+            - run: 'pecl install redis && docker-php-ext-enable redis'
+            # Configure PHP & Composer
+            - run: echo memory_limit = -1 >> /usr/local/etc/php/conf.d/custom.ini
+            - run: '[ -d ~/.composer ] || mkdir ~/.composer'
+            - run: cp .github/composer-config.json ~/.composer/config.json
+            # Configure the build
+            - run: echo "::set-env name=SYMFONY_VERSION::$(cat composer.json | grep '^ *\"dev-master\". *\"[1-9]' | grep -o '[0-9.]*')"
+            - run: echo "::set-env name=COMPOSER_ROOT_VERSION::$SYMFONY_VERSION.x-dev"
+            # Install dependencies
+            - run: composer global require --no-progress --no-scripts --no-plugins symfony/flex dev-master
+            - run: composer update --no-progress --no-suggest --ansi
+            - run: ./phpunit install
+            # Run tests
+            - run: ./phpunit --group redis --verbose
+              env:
+                  REDIS_HOST: redis
+                  REDIS_CLUSTER_HOSTS: 'redis-cluster:7000 redis-cluster:7001 redis-cluster:7002 redis-cluster:7003 redis-cluster:7004 redis-cluster:7005'
+

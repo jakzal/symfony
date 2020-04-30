@@ -24,6 +24,7 @@ class CachePoolsTest extends AbstractWebTestCase
 
     /**
      * @requires extension redis
+     * @group redis
      */
     public function testRedisCachePools()
     {
@@ -49,6 +50,7 @@ class CachePoolsTest extends AbstractWebTestCase
 
     /**
      * @requires extension redis
+     * @group redis
      */
     public function testRedisCustomCachePools()
     {

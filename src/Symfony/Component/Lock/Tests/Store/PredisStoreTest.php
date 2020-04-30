@@ -13,6 +13,7 @@ namespace Symfony\Component\Lock\Tests\Store;
 
 /**
  * @author Jérémy Derussé <jeremy@derusse.com>
+ * @group redis
  */
 class PredisStoreTest extends AbstractRedisStoreTest
 {
