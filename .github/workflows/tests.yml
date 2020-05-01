@@ -6,12 +6,14 @@ on:
 
 jobs:
 
-    redis-tests:
-        name: Redis tests
+    integration:
+        name: Integration
         runs-on: ubuntu-latest
+
         strategy:
             matrix:
-                php: [7.2, 7.3, 7.4]
+                php: ['5.5', '7.2', '7.3', '7.4']
+
         services:
             redis:
                 image: redis
@@ -26,27 +28,49 @@ jobs:
                     - 7003:7003
                     - 7004:7004
                     - 7005:7005
-        container:
-            image: jakzal/phpqa:php${{ matrix.php }}
+
         steps:
-            - uses: actions/checkout@v2
-            # Install system dependencies
-            - run: 'apt-get update && apt-get install -y autoconf file g++ gcc libc-dev pkg-config re2c'
-            - run: 'pecl install redis && docker-php-ext-enable redis'
-            # Configure PHP & Composer
-            - run: echo memory_limit = -1 >> /usr/local/etc/php/conf.d/custom.ini
-            - run: '[ -d ~/.composer ] || mkdir ~/.composer'
-            - run: cp .github/composer-config.json ~/.composer/config.json
-            # Configure the build
-            - run: echo "::set-env name=SYMFONY_VERSION::$(cat composer.json | grep '^ *\"dev-master\". *\"[1-9]' | grep -o '[0-9.]*')"
-            - run: echo "::set-env name=COMPOSER_ROOT_VERSION::$SYMFONY_VERSION.x-dev"
-            # Install dependencies
-            - run: composer global require --no-progress --no-scripts --no-plugins symfony/flex dev-master
-            - run: composer update --no-progress --no-suggest --ansi
-            - run: ./phpunit install
-            # Run tests
-            - run: ./phpunit --group redis --verbose
-              env:
-                  REDIS_HOST: redis
-                  REDIS_CLUSTER_HOSTS: 'redis-cluster:7000 redis-cluster:7001 redis-cluster:7002 redis-cluster:7003 redis-cluster:7004 redis-cluster:7005'
+            -   name: Checkout
+                uses: actions/checkout@v2
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    coverage: "none"
+                    extensions: "redis"
+                    ini-values: "memory_limit=-1"
+                    php-version: "${{ matrix.php }}"
+
+            -   name: Configure composer
+                run: |
+                    ([ -d ~/.composer ] || mkdir ~/.composer) && cp .github/composer-config.json ~/.composer/config.json
+                    SYMFONY_VERSION=$(cat composer.json | grep '^ *\"dev-master\". *\"[1-9]' | grep -o '[0-9.]*')
+                    echo "::set-env name=SYMFONY_VERSION::$SYMFONY_VERSION"
+                    echo "::set-env name=COMPOSER_ROOT_VERSION::$SYMFONY_VERSION.x-dev"
+
+            -   name: Determine composer cache directory
+                id: composer-cache
+                run: echo "::set-output name=directory::$(composer config cache-dir)"
+
+            -   name: Cache composer dependencies
+                uses: actions/cache@v1
+                with:
+                    path: ${{ steps.composer-cache.outputs.directory }}
+                    key: ${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+                    restore-keys: ${{ matrix.php }}-composer-
+
+            -   name: Install Symfony Flex
+                run: composer global require --no-progress --no-scripts --no-plugins symfony/flex dev-master
+                if: matrix.php != 5.5 && matrix.php != 5.6
+
+            -   name: Install dependencies
+                run: |
+                    composer update --no-progress --no-suggest --ansi
+                    ./phpunit install
+
+            -   name: Run tests
+                run: ./phpunit --group redis
+                env:
+                    REDIS_HOST: localhost
+                    REDIS_CLUSTER_HOSTS: 'localhost:7000 localhost:7001 localhost:7002 localhost:7003 localhost:7004 localhost:7005'
 
