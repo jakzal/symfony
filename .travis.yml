@@ -37,9 +37,6 @@ cache:
         - php-$MIN_PHP
         - ~/php-ext
 
-services:
-    - docker
-
 before_install:
     - |
       # Enable Sury ppa
