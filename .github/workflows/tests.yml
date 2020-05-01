@@ -28,6 +28,10 @@ jobs:
                     - 7003:7003
                     - 7004:7004
                     - 7005:7005
+            memcached:
+                image: memcached:1.6.5
+                ports:
+                    - 11211:11211
 
         steps:
             -   name: Checkout
@@ -37,7 +41,7 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     coverage: "none"
-                    extensions: "redis"
+                    extensions: "redis,memcached"
                     ini-values: "memory_limit=-1"
                     php-version: "${{ matrix.php }}"
 
@@ -69,8 +73,9 @@ jobs:
                     ./phpunit install
 
             -   name: Run tests
-                run: ./phpunit --group redis
+                run: ./phpunit --verbose --group redis,memcached
                 env:
                     REDIS_HOST: localhost
                     REDIS_CLUSTER_HOSTS: 'localhost:7000 localhost:7001 localhost:7002 localhost:7003 localhost:7004 localhost:7005'
+                    MEMCACHED_HOST: localhost
 

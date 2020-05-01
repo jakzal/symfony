@@ -14,6 +14,9 @@ namespace Symfony\Component\Cache\Tests\Adapter;
 use Symfony\Component\Cache\Adapter\AbstractAdapter;
 use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 
+/**
+ * @group memcached
+ */
 class MemcachedAdapterTest extends AdapterTestCase
 {
     protected $skippedTests = [
